@@ -4,7 +4,8 @@ import Dashboard from './pages/Dashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import DashboardTukang from './pages/DashboardTukang' 
 import ProtectedRoute from './components/ProtectedRoute' 
-import MasterData from './pages/MasterData' // <-- Tambahkan import ini
+import MasterData from './pages/MasterData'
+import NotFound from './pages/NotFound'
 
 function App() {
   return (
@@ -12,7 +13,7 @@ function App() {
       {/* Rute publik */}
       <Route path="/" element={<Login />} />
       
-      {/* Rute Dashboard Karyawan Biasa & Admin Tukang (Pribadi) */}
+      {/* Rute Dashboard Karyawan */}
       <Route path="/dashboard" element={<Dashboard />} />
 
       {/* Rute KHUSUS Admin Tukang */}
@@ -44,6 +45,9 @@ function App() {
           </ProtectedRoute>
         } 
       />
+
+      {/* Rute 404 Catch-All */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
