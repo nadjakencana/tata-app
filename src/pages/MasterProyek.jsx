@@ -96,7 +96,7 @@ const MasterProyek = () => {
       </form>
 
       {/* Tabel Data */}
-      <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <div className="rounded-2xl border border-slate-200 overflow-x-auto shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">

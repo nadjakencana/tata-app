@@ -33,8 +33,8 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
 
           {/* Center: Title */}
           {title && (
-            <div className="absolute left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
-              <h1 className="text-base sm:text-lg font-extrabold text-slate-800 tracking-tight">
+            <div className="absolute left-1/2 transform -translate-x-1/2 text-center pointer-events-none max-w-[160px] xs:max-w-[200px] sm:max-w-xs md:max-w-none px-1">
+              <h1 className="text-xs sm:text-base md:text-lg font-extrabold text-slate-800 tracking-tight truncate">
                 {title}
               </h1>
             </div>
@@ -46,7 +46,7 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
             {isSuperAdmin && !isCurrent('/admin') && (
               <button
                 onClick={() => navigate('/admin')}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#CE2328] text-white hover:bg-[#b41c21] transition-all shadow-sm"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#CE2328] text-white hover:bg-[#b41c21] transition-all shadow-sm active:scale-95"
               >
                 Admin Panel
               </button>
@@ -56,7 +56,7 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
             {!isSuperAdmin && userRole === 'admin_tukang' && !isCurrent('/dashboard-tukang') && (
               <button
                 onClick={() => navigate('/dashboard-tukang')}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200 transition-all"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200 transition-all active:scale-95"
               >
                 Absen Tim
               </button>
@@ -65,7 +65,7 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
             {!isSuperAdmin && !isCurrent('/dashboard') && (
               <button
                 onClick={() => navigate('/dashboard')}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-all"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-all active:scale-95"
               >
                 Absen Saya
               </button>
@@ -74,7 +74,7 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
             {onEditProfile && (
               <button
                 onClick={onEditProfile}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-300 transition-all"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-300 transition-all active:scale-95"
               >
                 Profil
               </button>
@@ -83,7 +83,7 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
             {onLogout && (
               <button
                 onClick={onLogout}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-red-50 text-[#CE2328] hover:bg-[#CE2328] hover:text-white border border-red-200 transition-all"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-red-50 text-[#CE2328] hover:bg-[#CE2328] hover:text-white border border-red-200 transition-all active:scale-95"
               >
                 Logout
               </button>
@@ -94,7 +94,8 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
           <div className="flex md:hidden items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-colors"
+              className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-all active:scale-95"
+              aria-label="Toggle menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
@@ -108,14 +109,14 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer Menu with Smooth Slide Animation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 animate-fade-in shadow-lg">
+        <div className="md:hidden border-t border-slate-200 bg-white/98 backdrop-blur-xl px-4 pt-3 pb-5 space-y-2.5 animate-slide-down shadow-xl border-b rounded-b-2xl">
           {isSuperAdmin ? (
             <button
               onClick={() => { setMobileMenuOpen(false); navigate('/admin'); }}
-              className={`w-full px-4 py-2.5 rounded-xl text-sm font-bold text-left ${
-                isCurrent('/admin') ? 'bg-[#CE2328] text-white' : 'bg-slate-50 text-slate-800'
+              className={`w-full px-4 py-3 rounded-xl text-sm font-bold text-left transition-all ${
+                isCurrent('/admin') ? 'bg-[#CE2328] text-white shadow-md shadow-[#CE2328]/20' : 'bg-slate-50 text-slate-800 hover:bg-slate-100'
               }`}
             >
               Admin Panel
@@ -124,8 +125,8 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
             <>
               <button
                 onClick={() => { setMobileMenuOpen(false); navigate('/dashboard'); }}
-                className={`w-full px-4 py-2.5 rounded-xl text-sm font-bold text-left ${
-                  isCurrent('/dashboard') ? 'bg-[#CE2328] text-white' : 'bg-slate-50 text-slate-800'
+                className={`w-full px-4 py-3 rounded-xl text-sm font-bold text-left transition-all ${
+                  isCurrent('/dashboard') ? 'bg-[#CE2328] text-white shadow-md shadow-[#CE2328]/20' : 'bg-slate-50 text-slate-800 hover:bg-slate-100'
                 }`}
               >
                 Absen Saya
@@ -134,8 +135,8 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
               {userRole === 'admin_tukang' && (
                 <button
                   onClick={() => { setMobileMenuOpen(false); navigate('/dashboard-tukang'); }}
-                  className={`w-full px-4 py-2.5 rounded-xl text-sm font-bold text-left ${
-                    isCurrent('/dashboard-tukang') ? 'bg-amber-500 text-slate-950' : 'bg-amber-50 text-amber-900'
+                  className={`w-full px-4 py-3 rounded-xl text-sm font-bold text-left transition-all ${
+                    isCurrent('/dashboard-tukang') ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-amber-50 text-amber-900 border border-amber-200'
                   }`}
                 >
                   Absen Tim
@@ -147,7 +148,7 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
           {onEditProfile && (
             <button
               onClick={() => { setMobileMenuOpen(false); onEditProfile(); }}
-              className="w-full px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-slate-100 text-left"
+              className="w-full px-4 py-3 rounded-xl text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 text-left transition-colors"
             >
               Edit Profil
             </button>
@@ -156,7 +157,7 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
           {onLogout && (
             <button
               onClick={() => { setMobileMenuOpen(false); onLogout(); }}
-              className="w-full px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#CE2328] text-left shadow-md"
+              className="w-full px-4 py-3 rounded-xl text-sm font-bold text-white bg-[#CE2328] hover:bg-[#b41c21] text-left shadow-md transition-all active:scale-[0.99]"
             >
               Logout
             </button>

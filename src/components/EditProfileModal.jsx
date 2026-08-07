@@ -131,8 +131,8 @@ export default function EditProfileModal({ isOpen, onClose, onProfileUpdated }) 
   }
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white border border-slate-200 w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl text-slate-900 relative overflow-hidden">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 animate-fade-in">
+      <div className="bg-white border border-slate-200 w-full max-w-md rounded-3xl p-5 sm:p-8 shadow-2xl text-slate-900 relative max-h-[90vh] overflow-y-auto">
         
         {/* Top Accent Line */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#CE2328]"></div>
