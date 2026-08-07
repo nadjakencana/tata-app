@@ -46,31 +46,74 @@ export default function EditProfileModal({ isOpen, onClose, onProfileUpdated }) 
     setMsg({ type: '', text: '' })
 
     try {
-      if (!user) throw new Error("Sesi pengguna tidak ditemukan.")
+      if (!user) throw new Error("Sesi pengguna tidak ditemukan. Silakan login kembali.")
 
-      // 1. Update data di tabel profiles (username & nama_lengkap)
+      const cleanUsername = username.trim().toLowerCase()
+      const cleanNamaLengkap = namaLengkap.trim()
+
+      if (!cleanUsername) throw new Error("Username tidak boleh kosong.")
+      if (!cleanNamaLengkap) throw new Error("Nama lengkap tidak boleh kosong.")
+
+      // 1. Cek apakah username sudah dipakai oleh user lain
+      const { data: existingUser, error: checkError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', cleanUsername)
+        .neq('id', user.id)
+        .maybeSingle()
+
+      if (checkError) throw checkError
+      if (existingUser) {
+        throw new Error(`Username '${cleanUsername}' sudah digunakan oleh pengguna lain. Silakan pilih username lain.`)
+      }
+
+      // 2. Update data di tabel profiles (username & nama_lengkap)
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          username: username.trim().toLowerCase(),
-          nama_lengkap: namaLengkap.trim()
+          username: cleanUsername,
+          nama_lengkap: cleanNamaLengkap
         })
         .eq('id', user.id)
 
-      if (profileError) throw profileError
-
-      // 2. Update Auth (Email dan/atau Password jika diisi)
-      const authUpdates = {}
-      if (email.trim() && email.trim() !== user.email) {
-        authUpdates.email = email.trim()
+      if (profileError) {
+        if (profileError.code === '42501') {
+          throw new Error("Izin update ditolak (RLS Policy). Pastikan RLS di Supabase mengizinkan pengguna mengubah profilnya sendiri.")
+        }
+        throw profileError
       }
+
+      // 3. Sync Auth Email & Password
+      // Jika email tidak diisi manual atau formatnya menggunakan domain internal (@tata.com / @app.local),
+      // kita otomatis sinkronkan Auth Email agar cocok dengan username baru saat login.
+      const authUpdates = {}
+      let targetEmail = email.trim().toLowerCase()
+
+      if (!targetEmail || targetEmail.endsWith('@tata.com') || targetEmail.endsWith('@app.local')) {
+        targetEmail = `${cleanUsername}@tata.com`
+      }
+
+      if (targetEmail && targetEmail !== user.email?.toLowerCase()) {
+        authUpdates.email = targetEmail
+      }
+
       if (newPassword.trim()) {
         authUpdates.password = newPassword.trim()
       }
 
       if (Object.keys(authUpdates).length > 0) {
         const { error: authError } = await supabase.auth.updateUser(authUpdates)
-        if (authError) throw authError
+        if (authError) {
+          console.warn("Gagal update Supabase Auth User (mungkin verifikasi email aktif atau email sudah dipakai):", authError.message)
+          // Jika update profile sukses tapi auth email gagal, beri info tambahan
+          setMsg({ 
+            type: 'success', 
+            text: `Profil berhasil diperbarui. Catatan: Email auth belum berubah (${authError.message})` 
+          })
+          if (onProfileUpdated) onProfileUpdated()
+          setTimeout(() => { onClose() }, 2000)
+          return
+        }
       }
 
       setMsg({ type: 'success', text: 'Profil & Pengaturan Akun berhasil diperbarui!' })
@@ -80,6 +123,7 @@ export default function EditProfileModal({ isOpen, onClose, onProfileUpdated }) 
       }, 1500)
 
     } catch (err) {
+      console.error("Error edit profile:", err)
       setMsg({ type: 'error', text: err.message || 'Gagal mengedit profil.' })
     } finally {
       setLoading(false)

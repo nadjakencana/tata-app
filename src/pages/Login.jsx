@@ -41,16 +41,24 @@ export default function Login() {
         password: password,
       })
 
-      // Jika gagal dan input berupa username polos, coba domain fallback (@app.local)
+      // Jika gagal dan input berupa username polos, coba variasi domain fallback (@app.local & @tata.com)
       if (authError && !input.includes('@')) {
-        const fallbackEmail = `${input.toLowerCase()}@app.local`
-        const fallbackRes = await supabase.auth.signInWithPassword({
-          email: fallbackEmail,
-          password: password,
-        })
-        if (!fallbackRes.error) {
-          authData = fallbackRes.data
-          authError = null
+        const candidateEmails = [
+          `${input.toLowerCase()}@app.local`,
+          `${input.toLowerCase()}@tata.com`,
+        ]
+        
+        for (const fallbackEmail of candidateEmails) {
+          if (fallbackEmail === emailToLogin) continue
+          const fallbackRes = await supabase.auth.signInWithPassword({
+            email: fallbackEmail,
+            password: password,
+          })
+          if (!fallbackRes.error) {
+            authData = fallbackRes.data
+            authError = null
+            break
+          }
         }
       }
 
