@@ -41,11 +41,13 @@ export default function Login() {
         password: password,
       })
 
-      // Jika gagal dan input berupa username polos, coba variasi domain fallback (@app.local & @tata.com)
+      // Jika gagal dan input berupa username polos, coba variasi domain fallback (@kontraktor.com, @app.local, @tata.com)
       if (authError && !input.includes('@')) {
+        const cleanInput = input.toLowerCase()
         const candidateEmails = [
-          `${input.toLowerCase()}@app.local`,
-          `${input.toLowerCase()}@tata.com`,
+          `${cleanInput}@kontraktor.com`,
+          `${cleanInput}@app.local`,
+          `${cleanInput}@tata.com`,
         ]
         
         for (const fallbackEmail of candidateEmails) {
