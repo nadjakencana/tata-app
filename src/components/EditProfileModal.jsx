@@ -5,7 +5,6 @@ export default function EditProfileModal({ isOpen, onClose, onProfileUpdated }) 
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState('')
   const [namaLengkap, setNamaLengkap] = useState('')
-  const [email, setEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState({ type: '', text: '' })
@@ -20,7 +19,6 @@ export default function EditProfileModal({ isOpen, onClose, onProfileUpdated }) 
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       if (currentUser) {
         setUser(currentUser)
-        setEmail(currentUser.email || '')
         
         const { data: profile } = await supabase
           .from('profiles')
@@ -84,16 +82,11 @@ export default function EditProfileModal({ isOpen, onClose, onProfileUpdated }) 
       }
 
       // 3. Sync Auth Email & Password
-      // Jika email tidak diisi manual atau formatnya menggunakan domain internal (@tata.com / @app.local),
-      // kita otomatis sinkronkan Auth Email agar cocok dengan username baru saat login.
+      // Email Auth disinkronkan secara otomatis agar selalu mengikuti format username (@tata.com)
       const authUpdates = {}
-      let targetEmail = email.trim().toLowerCase()
+      const targetEmail = `${cleanUsername}@tata.com`
 
-      if (!targetEmail || targetEmail.endsWith('@tata.com') || targetEmail.endsWith('@app.local')) {
-        targetEmail = `${cleanUsername}@tata.com`
-      }
-
-      if (targetEmail && targetEmail !== user.email?.toLowerCase()) {
+      if (targetEmail !== user.email?.toLowerCase()) {
         authUpdates.email = targetEmail
       }
 
@@ -104,8 +97,7 @@ export default function EditProfileModal({ isOpen, onClose, onProfileUpdated }) 
       if (Object.keys(authUpdates).length > 0) {
         const { error: authError } = await supabase.auth.updateUser(authUpdates)
         if (authError) {
-          console.warn("Gagal update Supabase Auth User (mungkin verifikasi email aktif atau email sudah dipakai):", authError.message)
-          // Jika update profile sukses tapi auth email gagal, beri info tambahan
+          console.warn("Gagal update Supabase Auth User:", authError.message)
           setMsg({ 
             type: 'success', 
             text: `Profil berhasil diperbarui. Catatan: Email auth belum berubah (${authError.message})` 
@@ -182,17 +174,6 @@ export default function EditProfileModal({ isOpen, onClose, onProfileUpdated }) 
               onChange={(e) => setNamaLengkap(e.target.value)}
               className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:bg-white transition-all font-medium"
               placeholder="Nama Lengkap Anda"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Email Akun</label>
-            <input 
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:bg-white transition-all font-medium"
-              placeholder="contoh: user@tata.com"
             />
           </div>
 
