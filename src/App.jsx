@@ -14,13 +14,20 @@ function App() {
       <Route path="/" element={<Login />} />
       
       {/* Rute Dashboard Karyawan */}
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
 
       {/* Rute KHUSUS Admin Tukang */}
       <Route 
         path="/dashboard-tukang" 
         element={
-          <ProtectedRoute allowedRoles={['admin_tukang']}> 
+          <ProtectedRoute allowedRoles={['admin_tukang', 'super_admin']}> 
             <DashboardTukang />
           </ProtectedRoute>
         } 

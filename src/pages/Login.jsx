@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { useNavigate } from 'react-router-dom'
 
@@ -9,6 +9,32 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const navigate = useNavigate()
+
+  useEffect(() => {
+    let ignore = false
+    const checkActiveSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && !ignore) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (ignore) return
+        const role = profile?.role
+        if (role === 'super_admin') {
+          navigate('/admin', { replace: true })
+        } else if (role === 'admin_tukang') {
+          navigate('/dashboard-tukang', { replace: true })
+        } else {
+          navigate('/dashboard', { replace: true })
+        }
+      }
+    }
+    checkActiveSession()
+    return () => { ignore = true }
+  }, [navigate])
 
   const handleLogin = async (e) => {
     e.preventDefault()

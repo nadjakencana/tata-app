@@ -21,6 +21,13 @@ export default function ProtectedRoute({ children, allowedRoles }) {
           return
         }
 
+        // Jika tidak ada pembatasan role khusus, pengguna yang telah login diizinkan masuk
+        if (!allowedRoles || allowedRoles.length === 0) {
+          setHasAccess(true)
+          setLoading(false)
+          return
+        }
+
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
@@ -28,9 +35,11 @@ export default function ProtectedRoute({ children, allowedRoles }) {
           .single()
 
         if (ignore) return
-        if (error) throw error
+        if (error && error.code !== 'PGRST116') throw error
 
-        if (profile && allowedRoles.includes(profile.role)) {
+        const userRole = profile?.role || 'karyawan'
+
+        if (allowedRoles.includes(userRole)) {
           setHasAccess(true)
         } else {
           setHasAccess(false)
@@ -52,7 +61,16 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     }
   }, [allowedRoles])
 
-  if (loading) return <p className="text-center mt-12 text-gray-300">Memeriksa akses keamanan...</p>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-[#CE2328] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-semibold text-slate-500">Memeriksa akses keamanan...</p>
+        </div>
+      </div>
+    )
+  }
 
   return hasAccess ? children : <Navigate to="/" replace />
 }
