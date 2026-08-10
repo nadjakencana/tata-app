@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 export default function Login() {
   const [usernameInput, setUsernameInput] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const navigate = useNavigate()
@@ -16,7 +17,7 @@ export default function Login() {
 
     try {
       const input = usernameInput.trim()
-      if (!input) throw new Error("Silakan masukkan username atau email!")
+      if (!input) throw new Error("Silakan masukkan username!")
 
       let emailToLogin = input
 
@@ -65,7 +66,7 @@ export default function Login() {
       }
 
       if (authError) {
-        throw new Error("Gagal Login: Pastikan Username/Email dan Password Anda benar!")
+        throw new Error("Gagal Login: Pastikan Username dan Password Anda benar!")
       }
 
       // 2. Kalau login berhasil, ambil data 'role' dari tabel 'profiles'
@@ -115,7 +116,7 @@ export default function Login() {
             Sistem Absensi
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Masuk dengan Username atau Email resmi
+            Masuk dengan Username resmi
           </p>
         </div>
 
@@ -133,7 +134,7 @@ export default function Login() {
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
-              Username / Email
+              Username
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -163,13 +164,30 @@ export default function Login() {
                 </svg>
               </div>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:border-[#CE2328] focus:bg-white transition-all font-medium placeholder-slate-400"
+                className="w-full pl-11 pr-11 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:border-[#CE2328] focus:bg-white transition-all font-medium placeholder-slate-400"
                 placeholder="••••••••"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+                title={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+              >
+                {showPassword ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.022 10.022 0 013.682-.663c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m-4.092-4.092a3 3 0 11-4.243-4.243M9.878 9.878l4.242 4.242M3 3l18 18" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
             </div>
           </div>
 
