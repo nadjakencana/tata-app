@@ -12,6 +12,7 @@ function App() {
     <Routes>
       {/* Rute publik */}
       <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
       
       {/* Rute Dashboard Karyawan */}
       <Route 
