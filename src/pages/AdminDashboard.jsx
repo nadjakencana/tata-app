@@ -70,14 +70,19 @@ export default function AdminDashboard() {
   const matchFilterTanggal = (waktuAbsen) => {
     if (!waktuAbsen) return false;
     
-    // Jika user memilih tanggal spesifik dari datepicker
-    if (filterTanggal) {
-      return waktuAbsen.substring(0, 10) === filterTanggal;
-    }
-
-    // Jika user memilih opsi rentang waktu
     const dateObj = new Date(waktuAbsen);
     if (isNaN(dateObj.getTime())) return false;
+
+    // Format waktuAbsen ke tanggal lokal YYYY-MM-DD
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const localDateStr = `${year}-${month}-${day}`;
+
+    // Jika user memilih tanggal spesifik dari datepicker
+    if (filterTanggal) {
+      return localDateStr === filterTanggal;
+    }
 
     if (filterRentang === '7_hari') {
       const past7Days = new Date();

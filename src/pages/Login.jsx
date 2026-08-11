@@ -47,16 +47,17 @@ export default function Login() {
 
       // Jika input tidak mengandung '@', proses sebagai username
       if (!input.includes('@')) {
+        const cleanUsername = input.trim().toLowerCase()
         const { data: profile } = await supabase
           .from('profiles')
           .select('id, role, username')
-          .ilike('username', input)
+          .eq('username', cleanUsername)
           .maybeSingle()
 
         if (profile && profile.username) {
           emailToLogin = `${profile.username.toLowerCase()}@tata.com`
         } else {
-          emailToLogin = `${input.toLowerCase()}@tata.com`
+          emailToLogin = `${cleanUsername}@tata.com`
         }
       }
 

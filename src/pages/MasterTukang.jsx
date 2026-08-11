@@ -58,7 +58,7 @@ const MasterTukang = () => {
         if (proyekList.length > 0) setProyekId(proyekList[0].id);
         fetchTukang();
       } else {
-        alert("Gagal update data");
+        alert("Gagal update data pekerja: " + error.message);
       }
     } else {
       const { error } = await supabase.from("tukang").insert([payload]);
@@ -67,7 +67,7 @@ const MasterTukang = () => {
         if (proyekList.length > 0) setProyekId(proyekList[0].id);
         fetchTukang();
       } else {
-        alert("Gagal tambah data");
+        alert("Gagal menambah data pekerja: " + error.message);
       }
     }
   };
@@ -80,8 +80,12 @@ const MasterTukang = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Yakin ingin menghapus pekerja ini?")) {
-      await supabase.from("tukang").delete().eq("id", id);
-      fetchTukang();
+      const { error } = await supabase.from("tukang").delete().eq("id", id);
+      if (error) {
+        alert("Gagal menghapus pekerja: " + error.message);
+      } else {
+        fetchTukang();
+      }
     }
   };
 

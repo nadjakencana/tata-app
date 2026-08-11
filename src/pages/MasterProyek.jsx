@@ -25,18 +25,25 @@ const MasterProyek = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const cleanNama = namaProyek.trim();
+    if (!cleanNama) return alert("Silakan masukkan nama proyek!");
+
     if (editId) {
       // Update data
-      const { error } = await supabase.from("proyek").update({ nama_proyek: namaProyek }).eq("id", editId);
-      if (!error) {
+      const { error } = await supabase.from("proyek").update({ nama_proyek: cleanNama }).eq("id", editId);
+      if (error) {
+        alert("Gagal mengubah data proyek: " + error.message);
+      } else {
         setEditId(null);
         setNamaProyek("");
         fetchProyek();
       }
     } else {
       // Insert data baru
-      const { error } = await supabase.from("proyek").insert([{ nama_proyek: namaProyek }]);
-      if (!error) {
+      const { error } = await supabase.from("proyek").insert([{ nama_proyek: cleanNama }]);
+      if (error) {
+        alert("Gagal menambah proyek: " + error.message);
+      } else {
         setNamaProyek("");
         fetchProyek();
       }
@@ -50,8 +57,12 @@ const MasterProyek = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Yakin ingin menghapus proyek ini?")) {
-      await supabase.from("proyek").delete().eq("id", id);
-      fetchProyek();
+      const { error } = await supabase.from("proyek").delete().eq("id", id);
+      if (error) {
+        alert("Gagal menghapus proyek: " + error.message);
+      } else {
+        fetchProyek();
+      }
     }
   };
 

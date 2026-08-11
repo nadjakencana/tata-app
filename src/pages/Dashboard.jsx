@@ -18,6 +18,8 @@ export default function Dashboard() {
   const canvasRef = useRef(null)
   const navigate = useNavigate()
 
+  const [gpsError, setGpsError] = useState('')
+
   const hentikanKamera = useCallback(() => {
     if (videoRef.current && videoRef.current.srcObject) {
       const tracks = videoRef.current.srcObject.getTracks()
@@ -42,23 +44,56 @@ export default function Dashboard() {
   }, [])
 
   useEffect(() => {
-    fetchUserData()
+    let ignore = false
+
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && !ignore) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, nama_lengkap, username')
+          .eq('id', user.id)
+          .single()
+        if (profile && !ignore) {
+          setUserRole(profile.role)
+          setUserData(profile)
+        }
+      }
+    }
+
+    loadProfile()
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setLokasi({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        (err) => console.error("Gagal ambil GPS", err)
+        (pos) => {
+          if (!ignore) {
+            setLokasi({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+            setGpsError('')
+          }
+        },
+        (err) => {
+          if (!ignore) {
+            console.error("Gagal ambil GPS", err)
+            setGpsError('Gagal mendeteksi lokasi. Pastikan akses GPS diizinkan.')
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
       )
+    } else {
+      setTimeout(() => {
+        if (!ignore) setGpsError('Perangkat Anda tidak mendukung fitur Geolocation GPS.')
+      }, 0)
     }
 
     const currentVideo = videoRef.current
     return () => {
+      ignore = true
       if (currentVideo && currentVideo.srcObject) {
         const tracks = currentVideo.srcObject.getTracks()
         tracks.forEach(track => track.stop())
       }
     }
-  }, [fetchUserData])
+  }, [])
 
   const handleLogout = async () => {
     hentikanKamera()
@@ -198,7 +233,7 @@ export default function Dashboard() {
 
           {/* GPS Status Card */}
           <div className="mb-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center space-x-3">
-            <div className={`p-2.5 rounded-xl shrink-0 ${lokasi.lat ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+            <div className={`p-2.5 rounded-xl shrink-0 ${lokasi.lat ? 'bg-emerald-100 text-emerald-700' : gpsError ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -206,8 +241,8 @@ export default function Dashboard() {
             </div>
             <div className="min-w-0 flex-1">
               <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider block">Status Lokasi GPS</span>
-              <span className={`text-xs font-extrabold truncate block ${lokasi.lat ? 'text-emerald-700' : 'text-amber-600 animate-pulse'}`}>
-                {lokasi.lat ? `Koordinat Terkunci (${lokasi.lat.toFixed(5)}, ${lokasi.lng.toFixed(5)})` : 'Sedang mendeteksi sinyal GPS...'}
+              <span className={`text-xs font-extrabold truncate block ${lokasi.lat ? 'text-emerald-700' : gpsError ? 'text-red-600' : 'text-amber-600 animate-pulse'}`}>
+                {lokasi.lat ? `Koordinat Terkunci (${lokasi.lat.toFixed(5)}, ${lokasi.lng.toFixed(5)})` : gpsError || 'Sedang mendeteksi sinyal GPS...'}
               </span>
             </div>
           </div>

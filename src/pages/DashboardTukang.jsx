@@ -19,35 +19,38 @@ const DashboardTukang = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let ignore = false;
     const fetchRole = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      if (user && !ignore) {
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .single();
-        if (profile) setUserRole(profile.role);
+        if (profile && !ignore) setUserRole(profile.role);
       }
     };
     fetchRole();
+    return () => { ignore = true; };
   }, []);
 
   // --- MENGAMBIL DAFTAR PROYEK SAAT LOAD ---
   useEffect(() => {
+    let ignore = false;
     const fetchProyek = async () => {
       const { data, error } = await supabase.from('proyek').select('*').order('nama_proyek');
-      if (!error && data) setProyekList(data);
+      if (!ignore && !error && data) setProyekList(data);
     };
     fetchProyek();
+    return () => { ignore = true; };
   }, []);
 
   // --- MENGAMBIL DAFTAR TUKANG BERDASARKAN PROYEK ---
   useEffect(() => {
-    if (!selectedProyek) {
-      return;
-    }
+    if (!selectedProyek) return;
     
+    let ignore = false;
     const fetchTukang = async () => {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -56,16 +59,18 @@ const DashboardTukang = () => {
         .eq('proyek_id', selectedProyek)
         .order('nama_tukang');
         
-      if (!error && data) {
-        setTukangList(data);
-        // Set default semua hadir
-        const defaultKehadiran = {};
-        data.forEach(t => defaultKehadiran[t.id] = 'Hadir');
-        setKehadiran(defaultKehadiran);
+      if (!ignore) {
+        if (!error && data) {
+          setTukangList(data);
+          const defaultKehadiran = {};
+          data.forEach(t => defaultKehadiran[t.id] = 'Hadir');
+          setKehadiran(defaultKehadiran);
+        }
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     fetchTukang();
+    return () => { ignore = true; };
   }, [selectedProyek]);
 
   const handleStatusChange = (tukangId, status) => {
@@ -83,10 +88,14 @@ const DashboardTukang = () => {
 
   const handleSubmitAbsenTim = async (e) => {
     e.preventDefault();
+    if (!selectedProyek) return alert("Silakan pilih lokasi proyek terlebih dahulu.");
+    if (tukangList.length === 0) return alert("Tidak ada data pekerja pada proyek ini untuk dikirim.");
+
     setIsSubmitting(true);
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
+      if (!user) throw new Error("Sesi login tidak ditemukan. Coba login ulang.");
 
       const waktuSekarang = new Date().toISOString();
 
