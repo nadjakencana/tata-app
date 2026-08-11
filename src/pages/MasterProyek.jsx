@@ -19,7 +19,7 @@ const MasterProyek = () => {
     };
     loadProyek();
     return () => {
-      ignore = true;
+      ignore = true; 
     };
   }, []);
 
@@ -66,18 +66,18 @@ const MasterProyek = () => {
       </div>
       
       {/* Form Tambah/Edit */}
-      <form onSubmit={handleSubmit} className="flex gap-2 flex-wrap sm:flex-nowrap bg-slate-50 p-4 rounded-2xl border border-slate-200">
+      <form onSubmit={handleSubmit} className="flex gap-2 flex-wrap sm:flex-nowrap bg-slate-50 p-3.5 sm:p-4 rounded-2xl border border-slate-200">
         <input
           type="text"
           placeholder="Nama Proyek Baru (contoh: Proyek Ruko BSD Cluster A)..."
           value={namaProyek}
           onChange={(e) => setNamaProyek(e.target.value)}
           required
-          className="flex-1 p-3 rounded-xl bg-white text-slate-900 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#CE2328] text-sm font-medium"
+          className="flex-1 min-w-0 w-full p-3 rounded-xl bg-white text-slate-900 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#CE2328] text-sm font-medium"
         />
         <button 
           type="submit" 
-          className="bg-[#CE2328] hover:bg-[#b41c21] text-white px-5 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-[#CE2328]/25 transition-all flex items-center gap-1.5"
+          className="w-full sm:w-auto bg-[#CE2328] hover:bg-[#b41c21] text-white px-5 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-[#CE2328]/25 transition-all flex items-center justify-center gap-1.5 shrink-0"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -88,7 +88,7 @@ const MasterProyek = () => {
           <button 
             type="button" 
             onClick={() => { setEditId(null); setNamaProyek(""); }} 
-            className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-3 rounded-xl text-xs transition-colors"
+            className="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-3 rounded-xl text-xs transition-colors shrink-0"
           >
             Batal
           </button>
@@ -96,8 +96,8 @@ const MasterProyek = () => {
       </form>
 
       {/* Tabel Data */}
-      <div className="rounded-2xl border border-slate-200 overflow-x-auto shadow-sm">
-        <table className="w-full text-left border-collapse">
+      <div className="rounded-2xl border border-slate-200 overflow-x-auto shadow-sm max-w-full">
+        <table className="w-full min-w-[500px] text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
               <th className="p-4 font-extrabold w-20">ID</th>

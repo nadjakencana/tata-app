@@ -158,17 +158,17 @@ export default function Dashboard() {
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#CE2328]"></div>
 
           {/* User Welcome Card Header */}
-          <div className="flex flex-col sm:flex-row items-center justify-between pb-6 mb-6 border-b border-slate-100 gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#CE2328] border border-red-100 flex items-center justify-center font-black text-xl shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 mb-6 border-b border-slate-100 gap-4">
+            <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+              <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#CE2328] border border-red-100 flex items-center justify-center font-black text-xl shadow-sm shrink-0">
                 {userData?.nama_lengkap?.charAt(0) || userData?.username?.charAt(0) || 'U'}
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg sm:text-xl font-bold text-slate-800 truncate">
                   {userData?.nama_lengkap || userData?.username || 'Karyawan'}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Silakan jepret foto wajah dan verifikasi koordinat lokasi Anda.
+                  {userRole === 'admin_tukang' ? 'Silakan absen diri Anda dulu di sini.' : 'Silakan jepret foto wajah dan verifikasi koordinat lokasi Anda.'}
                 </p>
               </div>
             </div>
@@ -176,9 +176,12 @@ export default function Dashboard() {
             {(userRole === 'admin_tukang' || userRole === 'super_admin') && (
               <button 
                 onClick={() => { hentikanKamera(); navigate('/dashboard-tukang'); }}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl transition-all text-xs shadow-md shadow-amber-500/20"
+                className="w-full sm:w-auto px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold rounded-xl transition-all text-xs shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 shrink-0"
               >
-                Absen Tim Tukang
+                <span>Lanjut Absen Tim Tukang</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
               </button>
             )}
           </div>
@@ -195,15 +198,15 @@ export default function Dashboard() {
 
           {/* GPS Status Card */}
           <div className="mb-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center space-x-3">
-            <div className={`p-2.5 rounded-xl ${lokasi.lat ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+            <div className={`p-2.5 rounded-xl shrink-0 ${lokasi.lat ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <div>
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Status Lokasi GPS</span>
-              <span className={`text-xs font-extrabold ${lokasi.lat ? 'text-emerald-700' : 'text-amber-600 animate-pulse'}`}>
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider block">Status Lokasi GPS</span>
+              <span className={`text-xs font-extrabold truncate block ${lokasi.lat ? 'text-emerald-700' : 'text-amber-600 animate-pulse'}`}>
                 {lokasi.lat ? `Koordinat Terkunci (${lokasi.lat.toFixed(5)}, ${lokasi.lng.toFixed(5)})` : 'Sedang mendeteksi sinyal GPS...'}
               </span>
             </div>
@@ -233,7 +236,7 @@ export default function Dashboard() {
             )}
 
             <div className={`relative w-full max-w-md ${kameraAktif ? 'block' : 'hidden'}`}>
-              <video ref={videoRef} autoPlay playsInline className="w-full rounded-2xl border-4 border-[#CE2328] shadow-2xl overflow-hidden bg-slate-900" />
+              <video ref={videoRef} autoPlay playsInline className="w-full max-w-full rounded-2xl border-4 border-[#CE2328] shadow-2xl overflow-hidden bg-slate-900 aspect-[4/3] object-cover" />
               <button 
                 onClick={jepretFoto} 
                 className="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-[#CE2328] hover:bg-[#b41c21] text-white px-6 py-3 rounded-full font-extrabold text-sm shadow-2xl border-2 border-white transition-all flex items-center gap-2 active:scale-95"

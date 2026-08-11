@@ -25,8 +25,6 @@ export default function Login() {
         const role = profile?.role
         if (role === 'super_admin') {
           navigate('/admin', { replace: true })
-        } else if (role === 'admin_tukang') {
-          navigate('/dashboard-tukang', { replace: true })
         } else {
           navigate('/dashboard', { replace: true })
         }
@@ -108,8 +106,6 @@ export default function Login() {
         // 3. Arahkan rute sesuai role
         if (profileData.role === 'super_admin') {
           navigate('/admin')
-        } else if (profileData.role === 'admin_tukang') {
-          navigate('/dashboard-tukang')
         } else {
           navigate('/dashboard')
         }

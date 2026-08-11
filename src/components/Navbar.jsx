@@ -33,7 +33,7 @@ export default function Navbar({ title, userRole, onEditProfile, onLogout }) {
 
           {/* Center: Title */}
           {title && (
-            <div className="absolute left-1/2 transform -translate-x-1/2 text-center pointer-events-none max-w-[160px] xs:max-w-[200px] sm:max-w-xs md:max-w-none px-1">
+            <div className="absolute left-1/2 transform -translate-x-1/2 text-center pointer-events-none max-w-[170px] min-[380px]:max-w-[210px] sm:max-w-xs md:max-w-none px-1">
               <h1 className="text-xs sm:text-base md:text-lg font-extrabold text-slate-800 tracking-tight truncate">
                 {title}
               </h1>
