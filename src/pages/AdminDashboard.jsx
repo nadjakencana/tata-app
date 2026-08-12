@@ -159,6 +159,30 @@ export default function AdminDashboard() {
     setFilterProyek('');
   };
 
+  // --- HELPER STRUKTUR FILTER UNTUK METADATA EKSPOR ---
+  const getFilterInfo = (isTukang = false) => {
+    const info = [];
+    if (filterTanggal) {
+      info.push(`Tanggal: ${filterTanggal}`);
+    } else if (filterRentang === '7_hari') {
+      info.push('Rentang: 7 Hari Terakhir');
+    } else if (filterRentang === '30_hari') {
+      info.push('Rentang: 1 Bulan Terakhir');
+    } else {
+      info.push('Rentang: Semua Waktu');
+    }
+
+    if (isTukang && filterProyek) {
+      info.push(`Proyek: ${filterProyek}`);
+    }
+
+    if (searchNama.trim()) {
+      info.push(`Pencarian: "${searchNama.trim()}"`);
+    }
+
+    return info.join(' | ');
+  };
+
   // --- FUNGSI EKSPOR EXCEL & PDF ---
   const exportKaryawanExcel = () => {
     if (filteredKaryawan.length === 0) return alert('Tidak ada data absensi karyawan untuk diekspor.');
@@ -184,9 +208,11 @@ export default function AdminDashboard() {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('LAPORAN ABSENSI KARYAWAN', 14, 15);
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Tanggal Cetak: ${new Date().toLocaleString('id-ID')}`, 14, 22);
+    
+    doc.setFontSize(9);
+    doc.setTextColor(80);
+    doc.text(`Filter Aktif: ${getFilterInfo(false)}`, 14, 21);
+    doc.text(`Tanggal Cetak: ${new Date().toLocaleString('id-ID')}`, 14, 26);
 
     const tableData = filteredKaryawan.map((item, index) => [
       index + 1,
@@ -197,7 +223,7 @@ export default function AdminDashboard() {
     ]);
 
     autoTable(doc, {
-      startY: 28,
+      startY: 31,
       head: [['No', 'Nama Lengkap', 'Tanggal', 'Jam Absen', 'Koordinat GPS']],
       body: tableData,
       theme: 'striped',
@@ -231,9 +257,11 @@ export default function AdminDashboard() {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('LAPORAN ABSENSI PEKERJA / TUKANG', 14, 15);
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Tanggal Cetak: ${new Date().toLocaleString('id-ID')}`, 14, 22);
+
+    doc.setFontSize(9);
+    doc.setTextColor(80);
+    doc.text(`Filter Aktif: ${getFilterInfo(true)}`, 14, 21);
+    doc.text(`Tanggal Cetak: ${new Date().toLocaleString('id-ID')}`, 14, 26);
 
     const tableData = filteredTukang.map((item, index) => [
       index + 1,
@@ -245,7 +273,7 @@ export default function AdminDashboard() {
     ]);
 
     autoTable(doc, {
-      startY: 28,
+      startY: 31,
       head: [['No', 'Tanggal', 'Jam Absen', 'Nama Pekerja', 'Lokasi Proyek', 'Status']],
       body: tableData,
       theme: 'striped',
@@ -256,9 +284,8 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
-      
-      {/* Simple Header Navbar with centered title "Admin Panel" */}
+    <div className="min-h-screen bg-slate-50/70 text-slate-900 font-sans flex flex-col antialiased">
+      {/* Sleek Top Navbar */}
       <Navbar 
         title="Admin Panel" 
         userRole="super_admin" 
@@ -266,101 +293,126 @@ export default function AdminDashboard() {
         onLogout={handleLogout} 
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         
-        {/* Simple Tab Switcher */}
-        <div className="flex bg-slate-200/80 p-1.5 rounded-2xl mb-6 border border-slate-300/70 shadow-inner flex-col sm:flex-row gap-1 sm:gap-0">
-          <button 
-            onClick={() => setActiveTab('karyawan')}
-            className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 ${
-              activeTab === 'karyawan' 
-                ? 'bg-[#CE2328] text-white shadow-lg shadow-[#CE2328]/25' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            Absen Karyawan
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('tukang')}
-            className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 ${
-              activeTab === 'tukang' 
-                ? 'bg-[#82C341] text-slate-950 shadow-lg shadow-[#82C341]/30' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            Absen Tukang
-          </button>
+        {/* Page Header Title & Quick Overview Bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+              Dashboard Rekapitulasi Absensi
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium">
+              Monitoring data kehadiran karyawan & tim tukang secara real-time.
+            </p>
+          </div>
 
-          <button 
-            onClick={() => setActiveTab('master')}
-            className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 ${
-              activeTab === 'master' 
-                ? 'bg-slate-900 text-white shadow-lg' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            Master Data
-          </button>
+          {/* Segmented Control Tabs */}
+          <div className="inline-flex bg-slate-200/70 p-1 rounded-xl border border-slate-300/60 shadow-xs self-stretch sm:self-auto">
+            <button 
+              onClick={() => setActiveTab('karyawan')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                activeTab === 'karyawan' 
+                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+              }`}
+            >
+              Absen Karyawan ({filteredKaryawan.length})
+            </button>
+            
+            <button 
+              onClick={() => setActiveTab('tukang')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                activeTab === 'tukang' 
+                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+              }`}
+            >
+              Absen Tukang ({filteredTukang.length})
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('master')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                activeTab === 'master' 
+                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+              }`}
+            >
+              Master Data
+            </button>
+          </div>
         </div>
-        
+
         {loading ? (
-          <div className="py-20 text-center text-slate-500 font-bold animate-pulse flex flex-col items-center gap-3">
-            <svg className="w-8 h-8 animate-spin text-[#CE2328]" fill="none" viewBox="0 0 24 24">
+          <div className="py-24 text-center text-slate-500 font-semibold animate-pulse flex flex-col items-center gap-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+            <svg className="w-7 h-7 animate-spin text-[#CE2328]" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span>Memuat data absensi...</span>
+            <span className="text-xs text-slate-600">Memuat data absensi terbaru...</span>
           </div>
         ) : (
-          <div>
+          <div className="space-y-6">
             
             {/* TAB 1: ABSEN KARYAWAN */}
             {activeTab === 'karyawan' && (
               <div className="space-y-6">
-                {/* PANEL FILTER KARYAWAN */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-100 pb-4 gap-3">
-                    <div>
-                      <h3 className="text-base font-bold text-slate-800">Filter Absen Karyawan</h3>
+                {/* Control & Filter Panel */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-100 gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#CE2328]"></div>
+                      <h3 className="text-sm font-bold text-slate-800">Filter Data Absen Karyawan</h3>
                     </div>
-                    <div className="flex gap-2">
+
+                    <div className="flex gap-2 w-full sm:w-auto">
                       <button 
                         onClick={exportKaryawanExcel}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-extrabold transition-all shadow-md shadow-emerald-600/20 flex items-center gap-1.5"
+                        className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
                       >
-                        Export Excel
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Excel
                       </button>
                       <button 
                         onClick={exportKaryawanPDF}
-                        className="bg-[#CE2328] hover:bg-[#b41c21] text-white px-4 py-2 rounded-xl text-xs font-extrabold transition-all shadow-md shadow-[#CE2328]/20 flex items-center gap-1.5"
+                        className="flex-1 sm:flex-none bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
                       >
-                        Export PDF
+                        <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        PDF
                       </button>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Cari Nama</label>
-                      <input 
-                        type="text" 
-                        placeholder="Ketik nama karyawan..." 
-                        value={searchNama}
-                        onChange={(e) => setSearchNama(e.target.value)}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:bg-white transition-all font-medium"
-                      />
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Cari Karyawan</label>
+                      <div className="relative">
+                        <input 
+                          type="text" 
+                          placeholder="Nama..." 
+                          value={searchNama}
+                          onChange={(e) => setSearchNama(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all"
+                        />
+                        <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rentang Waktu</label>
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Rentang Waktu</label>
                       <select
                         value={filterRentang}
                         onChange={(e) => {
                           setFilterRentang(e.target.value);
                           setFilterTanggal('');
                         }}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:bg-white transition-all font-medium"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all"
                       >
                         <option value="semua">Semua Waktu</option>
                         <option value="7_hari">7 Hari Terakhir</option>
@@ -369,7 +421,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Tanggal Spesifik</label>
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Tanggal Spesifik</label>
                       <input 
                         type="date" 
                         value={filterTanggal}
@@ -377,14 +429,14 @@ export default function AdminDashboard() {
                           setFilterTanggal(e.target.value);
                           setFilterRentang('custom');
                         }}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:bg-white transition-all font-medium"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all"
                       />
                     </div>
 
                     <div className="flex items-end">
                       <button 
                         onClick={resetAllFilter}
-                        className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold p-2.5 rounded-xl border border-slate-300 transition-colors text-xs"
+                        className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-xl border border-slate-200 transition-colors text-xs"
                       >
                         Reset Filter
                       </button>
@@ -392,62 +444,72 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* RIWAYAT BERDASARKAN HARI */}
+                {/* Tabel Berdasarkan Hari */}
                 {groupedKaryawan.length === 0 ? (
-                  <div className="bg-white p-12 text-center rounded-3xl text-slate-400 border border-slate-200 font-medium">
+                  <div className="bg-white p-12 text-center rounded-2xl text-slate-400 border border-slate-200/80 text-xs font-medium shadow-xs">
                     Data absensi karyawan tidak ditemukan.
                   </div>
                 ) : (
                   groupedKaryawan.map((group) => (
-                    <div key={group.dateKey} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                      <div className="bg-slate-900 px-6 py-3.5 border-b border-slate-800 flex items-center justify-between">
-                        <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#CE2328]"></span>
-                          {group.formattedDate}
-                        </h4>
-                        <span className="text-xs text-slate-400 font-semibold">{group.items.length} Absen</span>
+                    <div key={group.dateKey} className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden transition-all hover:border-slate-300">
+                      <div className="bg-slate-50/80 px-5 py-3 border-b border-slate-200/70 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-800">
+                            {group.formattedDate}
+                          </h4>
+                        </div>
+                        <span className="text-[11px] bg-slate-200/70 text-slate-700 font-semibold px-2.5 py-0.5 rounded-full">
+                          {group.items.length} Karyawan
+                        </span>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                           <thead>
-                            <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                              <th className="p-4 font-extrabold">Nama Lengkap</th>
-                              <th className="p-4 font-extrabold">Jam Absen</th>
-                              <th className="p-4 font-extrabold text-center">Foto Bukti</th>
-                              <th className="p-4 font-extrabold text-center">GPS</th>
+                            <tr className="bg-slate-50/50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-100">
+                              <th className="px-5 py-3 font-semibold">Nama Lengkap</th>
+                              <th className="px-5 py-3 font-semibold">Waktu Absen</th>
+                              <th className="px-5 py-3 font-semibold text-center">Bukti Foto</th>
+                              <th className="px-5 py-3 font-semibold text-center">Lokasi GPS</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100">
+                          <tbody className="divide-y divide-slate-100 text-xs">
                             {group.items.map((absen) => (
-                              <tr key={absen.id} className="hover:bg-slate-50/80 transition-colors">
-                                <td className="p-4 font-bold text-slate-800">
+                              <tr key={absen.id} className="hover:bg-slate-50/60 transition-colors">
+                                <td className="px-5 py-3.5 font-bold text-slate-800">
                                   {absen.profiles?.nama_lengkap || 'Anonim'}
                                 </td>
-                                <td className="p-4 text-slate-600 text-sm font-mono font-medium">
+                                <td className="px-5 py-3.5 text-slate-600 font-mono font-medium">
                                   {new Date(absen.waktu_absen).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB
                                 </td>
-                                <td className="p-4 text-center">
+                                <td className="px-5 py-3.5 text-center">
                                   {absen.foto_url ? (
                                     <div className="flex justify-center items-center">
                                       <img 
                                         src={absen.foto_url} 
                                         alt="Bukti" 
-                                        className="w-12 h-12 object-cover rounded-xl border border-slate-300 hover:scale-125 transition-transform cursor-pointer shadow-sm" 
+                                        className="w-10 h-10 object-cover rounded-lg border border-slate-200 hover:scale-110 transition-transform cursor-pointer shadow-xs" 
                                       />
                                     </div>
                                   ) : (
                                     <span className="text-slate-400 text-xs">-</span>
                                   )}
                                 </td>
-                                <td className="p-4 text-center">
+                                <td className="px-5 py-3.5 text-center">
                                   {absen.latitude && absen.longitude ? (
                                     <a 
                                       href={`https://www.google.com/maps?q=${absen.latitude},${absen.longitude}`} 
                                       target="_blank" 
                                       rel="noopener noreferrer"
-                                      className="bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-200 px-3 py-1 rounded-xl text-xs font-bold inline-flex items-center gap-1 transition-all"
+                                      className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/80 px-2.5 py-1 rounded-lg text-[11px] font-bold inline-flex items-center gap-1 transition-all"
                                     >
-                                      Peta GPS
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      </svg>
+                                      Maps
                                     </a>
                                   ) : (
                                     <span className="text-slate-400 text-xs">N/A</span>
@@ -467,49 +529,62 @@ export default function AdminDashboard() {
             {/* TAB 2: ABSEN TUKANG */}
             {activeTab === 'tukang' && (
               <div className="space-y-6">
-                {/* PANEL FILTER TUKANG */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-100 pb-4 gap-3">
-                    <div>
-                      <h3 className="text-base font-bold text-slate-800">Filter Absen Tukang</h3>
+                {/* Control & Filter Panel */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-100 gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#82C341]"></div>
+                      <h3 className="text-sm font-bold text-slate-800">Filter Data Absen Tukang</h3>
                     </div>
-                    <div className="flex gap-2">
+
+                    <div className="flex gap-2 w-full sm:w-auto">
                       <button 
                         onClick={exportTukangExcel}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-extrabold transition-all shadow-md shadow-emerald-600/20 flex items-center gap-1.5"
+                        className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
                       >
-                        Export Excel
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Excel
                       </button>
                       <button 
                         onClick={exportTukangPDF}
-                        className="bg-[#CE2328] hover:bg-[#b41c21] text-white px-4 py-2 rounded-xl text-xs font-extrabold transition-all shadow-md shadow-[#CE2328]/20 flex items-center gap-1.5"
+                        className="flex-1 sm:flex-none bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
                       >
-                        Export PDF
+                        <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        PDF
                       </button>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nama Pekerja</label>
-                      <input 
-                        type="text" 
-                        placeholder="Ketik nama..." 
-                        value={searchNama}
-                        onChange={(e) => setSearchNama(e.target.value)}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:bg-white transition-all font-medium"
-                      />
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Cari Pekerja</label>
+                      <div className="relative">
+                        <input 
+                          type="text" 
+                          placeholder="Nama..." 
+                          value={searchNama}
+                          onChange={(e) => setSearchNama(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all"
+                        />
+                        <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rentang Waktu</label>
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Rentang Waktu</label>
                       <select
                         value={filterRentang}
                         onChange={(e) => {
                           setFilterRentang(e.target.value);
                           setFilterTanggal('');
                         }}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:bg-white transition-all font-medium"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all"
                       >
                         <option value="semua">Semua Waktu</option>
                         <option value="7_hari">7 Hari Terakhir</option>
@@ -518,7 +593,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Tanggal Spesifik</label>
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Tanggal Spesifik</label>
                       <input 
                         type="date" 
                         value={filterTanggal}
@@ -526,16 +601,16 @@ export default function AdminDashboard() {
                           setFilterTanggal(e.target.value);
                           setFilterRentang('custom');
                         }}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:bg-white transition-all font-medium"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Filter Proyek</label>
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Filter Proyek</label>
                       <select 
                         value={filterProyek}
                         onChange={(e) => setFilterProyek(e.target.value)}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#CE2328] focus:bg-white transition-all font-medium"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all"
                       >
                         <option value="">Semua Proyek</option>
                         {proyekList.map((p, idx) => (
@@ -547,7 +622,7 @@ export default function AdminDashboard() {
                     <div className="flex items-end">
                       <button 
                         onClick={resetAllFilter}
-                        className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold p-2.5 rounded-xl border border-slate-300 transition-colors text-xs"
+                        className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-xl border border-slate-200 transition-colors text-xs"
                       >
                         Reset Filter
                       </button>
@@ -555,50 +630,56 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* RIWAYAT TUKANG BERDASARKAN HARI */}
+                {/* Tabel Berdasarkan Hari */}
                 {groupedTukang.length === 0 ? (
-                  <div className="bg-white p-12 text-center rounded-3xl text-slate-400 border border-slate-200 font-medium">
+                  <div className="bg-white p-12 text-center rounded-2xl text-slate-400 border border-slate-200/80 text-xs font-medium shadow-xs">
                     Data absensi tukang tidak ditemukan.
                   </div>
                 ) : (
                   groupedTukang.map((group) => (
-                    <div key={group.dateKey} className="bg-[#FFFFFF] rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                      <div className="bg-slate-900 px-6 py-3.5 border-b border-slate-800 flex items-center justify-between">
-                        <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#82C341]"></span>
-                          {group.formattedDate}
-                        </h4>
-                        <span className="text-xs text-slate-400 font-semibold">{group.items.length} Pekerja Absen</span>
+                    <div key={group.dateKey} className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden transition-all hover:border-slate-300">
+                      <div className="bg-slate-50/80 px-5 py-3 border-b border-slate-200/70 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-800">
+                            {group.formattedDate}
+                          </h4>
+                        </div>
+                        <span className="text-[11px] bg-slate-200/70 text-slate-700 font-semibold px-2.5 py-0.5 rounded-full">
+                          {group.items.length} Pekerja
+                        </span>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                           <thead>
-                            <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                              <th className="p-4 font-extrabold">Jam Absen</th>
-                              <th className="p-4 font-extrabold">Nama Tukang</th>
-                              <th className="p-4 font-extrabold">Lokasi Proyek</th>
-                              <th className="p-4 font-extrabold">Status</th>
+                            <tr className="bg-slate-50/50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-100">
+                              <th className="px-5 py-3 font-semibold">Waktu Absen</th>
+                              <th className="px-5 py-3 font-semibold">Nama Tukang</th>
+                              <th className="px-5 py-3 font-semibold">Lokasi Proyek</th>
+                              <th className="px-5 py-3 font-semibold">Status Kehadiran</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100">
+                          <tbody className="divide-y divide-slate-100 text-xs">
                             {group.items.map((absen) => (
-                              <tr key={absen.id} className="hover:bg-slate-50/80 transition-colors">
-                                <td className="p-4 text-slate-600 text-sm font-mono font-medium">
+                              <tr key={absen.id} className="hover:bg-slate-50/60 transition-colors">
+                                <td className="px-5 py-3.5 text-slate-600 font-mono font-medium">
                                   {absen.waktu_absen ? new Date(absen.waktu_absen).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB' : '-'}
                                 </td>
-                                <td className="p-4 font-bold text-slate-800">
+                                <td className="px-5 py-3.5 font-bold text-slate-800">
                                   {absen.tukang?.nama_tukang || 'Tukang Dihapus'}
                                 </td>
-                                <td className="p-4 font-semibold text-slate-700">
-                                  <span className="inline-block px-3 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs">
+                                <td className="px-5 py-3.5 font-medium text-slate-700">
+                                  <span className="inline-block px-2.5 py-0.5 bg-slate-100 border border-slate-200/80 rounded-md text-[11px]">
                                     {absen.proyek?.nama_proyek || 'Proyek Dihapus'}
                                   </span>
                                 </td>
-                                <td className="p-4 font-bold">
-                                  <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${
-                                    absen.keterangan === 'Hadir' ? 'bg-[#82C341]/20 text-[#5e9626] border border-[#82C341]/40' : 
-                                    absen.keterangan === 'Izin' ? 'bg-amber-100 text-amber-800 border border-amber-300' : 
-                                    'bg-red-100 text-[#CE2328] border border-red-300'
+                                <td className="px-5 py-3.5">
+                                  <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold ${
+                                    absen.keterangan === 'Hadir' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 
+                                    absen.keterangan === 'Izin' ? 'bg-amber-50 text-amber-700 border border-amber-200/60' : 
+                                    'bg-rose-50 text-rose-700 border border-rose-200/60'
                                   }`}>
                                     {absen.keterangan}
                                   </span>

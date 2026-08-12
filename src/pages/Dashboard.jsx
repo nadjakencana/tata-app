@@ -213,7 +213,7 @@ export default function Dashboard() {
                 onClick={() => { hentikanKamera(); navigate('/dashboard-tukang'); }}
                 className="w-full sm:w-auto px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold rounded-xl transition-all text-xs shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 shrink-0"
               >
-                <span>Lanjut Absen Tim Tukang</span>
+                <span>Absen Tim Tukang</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
