@@ -316,7 +316,7 @@ export default function AdminDashboard() {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
               }`}
             >
-              Absen Karyawan ({filteredKaryawan.length})
+              Absen Karyawan
             </button>
             
             <button 
@@ -327,7 +327,7 @@ export default function AdminDashboard() {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
               }`}
             >
-              Absen Tukang ({filteredTukang.length})
+              Absen Tukang
             </button>
 
             <button 
